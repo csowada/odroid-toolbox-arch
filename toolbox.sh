@@ -221,6 +221,7 @@ case $1 in
 		prepare_lock
 		create_openhab_user
 		create_su_user
+		install_yaourt
 		install_acpi
 		expand_root_partition
 		;;
