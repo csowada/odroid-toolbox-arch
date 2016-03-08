@@ -1,40 +1,41 @@
 #!/usr/bin/bash
 
 # openhab service user
-USER=openhab
-GROUP=openhab
+OPENHAB_USER=openhab
+SU_USER=admin
 
-create_user() {
+create_openhab_user() {
 
 	echo "Create openhab user"
 	
 	#groupadd $GROUP
 	
-	useradd -U -s /usr/bin/nologin $USER
+	useradd -U -s /usr/bin/nologin $OPENHAB_USER
 
 	# Access group for >> Serial and USB devices such as modems, handhelds, RS-232/serial ports.
-	gpasswd -a $USER uucp
+	gpasswd -a $OPENHAB_USER uucp
 
 	# Access group for >> Eg. to acces /dev/ACMx
-	gpasswd -a $USER tty
+	gpasswd -a $OPENHAB_USER tty
 
 	# Access group for >> Access the lock directory
-	gpasswd -a $USER lock
+	gpasswd -a $OPENHAB_USER lock
 
 	# Access group for >> daemon ?
-	gpasswd -a $USER daemon
+	gpasswd -a $OPENHAB_USER daemon
 
 }
 
-create_user2() {
+create_su_user() {
 
-	echo "Create user2"
+	echo "Create admin"
 
-	useradd -m -G $GROUP -s /usr/bin/nologin $USER
+	useradd -m -U -s /bin/bash $SU_USER
 
 	# Access group for >> sudo root
-	gpasswd -a $USER wheel
+	gpasswd -a $SU_USER wheel
 
+	passwd admin
 }
 
 install_acpi() {
@@ -44,22 +45,30 @@ install_acpi() {
 	# install ACPI
 	pacman -S acpid --noconfirm
 
+	cat << __EOF__ >> /etc/acpi/events/power-button
+event=button power.*
+action=/etc/acpi/actions/power-button.sh %e
+__EOF__
 
+	cat << __EOF__ >> /etc/acpi/actions/power-button.sh
+#!/bin/sh
+systemctl poweroff
+__EOF__
 
-	# modify file /etc/acpi/handler.sh
-	#https://wiki.archlinux.de/title/Rechner_per_Power_Knopf_runterfahren
+	chmod 755 /etc/acpi/actions/power-button.sh
 
 	# enable ACPI service
 	systemctl enable acpid.service
 
 	# start ACPI service
-	sudo systemctl start acpid
+	systemctl start acpid
 }
 
 install_yaourt() {
 
 	echo "Install yaourt"
-
+	su $SU_USER
+	
 	pacman -S base-devel --noconfirm
 
 	curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/package-query.tar.gz
@@ -71,7 +80,8 @@ install_yaourt() {
 	curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/yaourt.tar.gz
 	tar -xvzf yaourt.tar.gz
 	cd yaourt
-	makepkg -si
+
+	exit
 }
 
 initial_system() {
@@ -139,6 +149,9 @@ __EOF__
 SUBSYSTEM=="usb", GROUP="${GROUP}", MODE="0660"
 __EOF__
 
+	# reload trigger
+	udevadm trigger
+
 }
 
 prepare_lock() {
@@ -197,7 +210,7 @@ case $1 in
   expand_root_partition) expand_root_partition;;
   prepare_udev) prepare_udev;;
   prepare_lock) prepare_lock;;
-  create_user) create_user;;
+  create_openhab_user) create_openhab_user;;
   install_docker) install_docker;;
   install_yaourt) install_yaourt;;
   create_user2) create_user2;;
@@ -206,7 +219,9 @@ case $1 in
   *) 	initial_system
 		prepare_udev
 		prepare_lock
-		create_user
+		create_openhab_user
+		create_su_user
+		install_acpi
 		expand_root_partition
 		;;
 esac
