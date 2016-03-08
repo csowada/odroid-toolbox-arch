@@ -7,7 +7,9 @@ GROUP=openhab
 create_user() {
 
 	echo "Create openhab user"
-
+	
+	groupadd $GROUP
+	
 	useradd -m -G $GROUP -s /usr/bin/nologin $USER
 
 	# Access group for >> Serial and USB devices such as modems, handhelds, RS-232/serial ports.
@@ -76,7 +78,7 @@ initial_system() {
 
 	echo "Init system"
 
-	grep -E -A 1 ".*Germany.*$" /etc/pacman.d/mirrorlist.bak | sed '/--/d' > /etc/pacman.d/mirrorlist
+	#grep -E -A 1 ".*Germany.*$" /etc/pacman.d/mirrorlist.bak | sed '/--/d' > /etc/pacman.d/mirrorlist
 
 	# Update locals
 	locale-gen
@@ -154,7 +156,7 @@ expand_root_partition() {
 	echo "Found the start point of mmcblk0p1: $p1_start"
 	fdisk /dev/mmcblk0 << __EOF__ >> /dev/null
 d
-2
+1
 n
 p
 1
@@ -185,7 +187,11 @@ case $1 in
   prepare_udev) prepare_udev;;
   prepare_lock) prepare_lock;;
   create_user) create_user;;
-
+  install_docker) install_docker;;
+  install_yaourt) install_yaourt;;
+  create_user2) create_user2;;
+  install_acpi) install_acpi;;
+  
   *) 	initial_system
 		prepare_udev
 		prepare_lock
