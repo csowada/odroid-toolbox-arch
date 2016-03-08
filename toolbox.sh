@@ -7,9 +7,7 @@ SU_USER=admin
 create_openhab_user() {
 
 	echo "Create openhab user ..."
-	
-	#groupadd $GROUP
-	
+
 	useradd -U -s /usr/bin/nologin $OPENHAB_USER
 
 	# Access group for >> Serial and USB devices such as modems, handhelds, RS-232/serial ports.
@@ -93,10 +91,10 @@ initial_system() {
 
 	# set locals
 	echo "Set locals"
-	echo LANG=de_DE.UTF-8 > root/etc/locale.conf
-	echo KEYMAP=de-latin1 > root/etc/vconsole.conf
-	ln -s /usr/share/zoneinfo/Europe/Berlin root/etc/localtime
-	echo 'de_DE.UTF-8 UTF-8' > root/etc/locale.gen
+	echo LANG=de_DE.UTF-8 > /etc/locale.conf
+	echo KEYMAP=de-latin1 > /etc/vconsole.conf
+	ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime
+	echo 'de_DE.UTF-8 UTF-8' > /etc/locale.gen
 
 	# Update locals
 	locale-gen
@@ -213,11 +211,11 @@ case $1 in
   create_user2) create_user2;;
   install_acpi) install_acpi;;
   
-  *) 	initial_system
+  *) 	create_su_user
+		initial_system
 		prepare_udev
 		prepare_lock
 		create_openhab_user
-		create_su_user
 		install_acpi
 		expand_root_partition
 		;;
