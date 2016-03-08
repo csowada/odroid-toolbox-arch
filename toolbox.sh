@@ -6,7 +6,7 @@ SU_USER=admin
 
 create_openhab_user() {
 
-	echo "Create openhab user"
+	echo "Create openhab user ..."
 	
 	#groupadd $GROUP
 	
@@ -28,7 +28,7 @@ create_openhab_user() {
 
 create_su_user() {
 
-	echo "Create admin"
+	echo "Create admin ..."
 
 	useradd -m -U -s /bin/bash $SU_USER
 
@@ -40,22 +40,22 @@ create_su_user() {
 
 install_acpi() {
 
-	echo "Install ACPI service"
+	echo "Install ACPI service ..."
 
 	# install ACPI
 	pacman -S acpid --noconfirm
 
 	cat << __EOF__ >> /etc/acpi/events/power-button
 event=button power.*
-action=/etc/acpi/actions/power-button.sh %e
+action=/etc/acpi/power-button.sh %e
 __EOF__
 
-	cat << __EOF__ >> /etc/acpi/actions/power-button.sh
+	cat << __EOF__ >> /etc/acpi/power-button.sh
 #!/bin/sh
 systemctl poweroff
 __EOF__
 
-	chmod 755 /etc/acpi/actions/power-button.sh
+	chmod 755 /etc/acpi/power-button.sh
 
 	# enable ACPI service
 	systemctl enable acpid.service
@@ -66,7 +66,7 @@ __EOF__
 
 install_yaourt() {
 
-	echo "Install yaourt"
+	echo "Install yaourt ..."
 
 	pacman -S base-devel --noconfirm
 
@@ -85,7 +85,7 @@ install_yaourt() {
 
 initial_system() {
 
-	echo "Init system"
+	echo "Init system ..."
 
 	# set hostname
 	echo "Set hostname"
@@ -111,7 +111,7 @@ initial_system() {
 
 install_docker() {
 
-	echo "Install docker"
+	echo "Install docker ..."
 
 	# Docker part
 	pacman -S docker --noconfirm
@@ -122,19 +122,19 @@ install_docker() {
 
 disable_root() {
 
-	echo "Disable root account"
+	echo "Disable root account ..."
 
 	passwd -l root
 }
 
 enable_root() {
-	echo "Enable root account"
+	echo "Enable root account ..."
 	sudo passwd -u root
 }
 
 prepare_udev() {
 
-	echo "Set UDEV"
+	echo "Set udev ..."
 
 	# Add reliable serial ftdi device links
 	cat << __EOF__ >> /etc/udev/rules.d/52-openhab-ftdi.rules
@@ -153,7 +153,7 @@ __EOF__
 
 prepare_lock() {
 
-		echo "Repare lock"
+		echo "Prepare lock ..."
 
 	# Allow access to usb like HID devices
 	cat << __EOF__ >> /etc/tmpfiles.d/legacy.conf
@@ -168,7 +168,7 @@ __EOF__
 
 expand_root_partition() {
 
-	echo "Resize root partition"
+	echo "Resize root partition ..."
 
 	# Install parted to update root partition
 	pacman -S parted --noconfirm
@@ -218,7 +218,6 @@ case $1 in
 		prepare_lock
 		create_openhab_user
 		create_su_user
-		install_yaourt
 		install_acpi
 		expand_root_partition
 		;;
