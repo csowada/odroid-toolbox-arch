@@ -8,9 +8,9 @@ create_user() {
 
 	echo "Create openhab user"
 	
-	groupadd $GROUP
+	#groupadd $GROUP
 	
-	useradd -m -G $GROUP -s /usr/bin/nologin $USER
+	useradd -U -s /usr/bin/nologin $USER
 
 	# Access group for >> Serial and USB devices such as modems, handhelds, RS-232/serial ports.
 	gpasswd -a $USER uucp
@@ -79,6 +79,17 @@ initial_system() {
 	echo "Init system"
 
 	#grep -E -A 1 ".*Germany.*$" /etc/pacman.d/mirrorlist.bak | sed '/--/d' > /etc/pacman.d/mirrorlist
+
+	# set hostname
+	echo "Set hostname"
+	echo openhab2 > root/etc/hostname
+
+	# set locals
+	echo "Set locals"
+	echo LANG=de_DE.UTF-8 > root/etc/locale.conf
+	echo KEYMAP=de-latin1 > root/etc/vconsole.conf
+	ln -s /usr/share/zoneinfo/Europe/Berlin root/etc/localtime
+	echo 'de_DE.UTF-8 UTF-8' > root/etc/locale.gen
 
 	# Update locals
 	locale-gen
