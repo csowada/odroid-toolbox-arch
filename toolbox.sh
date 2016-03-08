@@ -67,8 +67,7 @@ __EOF__
 install_yaourt() {
 
 	echo "Install yaourt"
-	su $SU_USER
-	
+
 	pacman -S base-devel --noconfirm
 
 	curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/package-query.tar.gz
@@ -87,8 +86,6 @@ install_yaourt() {
 initial_system() {
 
 	echo "Init system"
-
-	#grep -E -A 1 ".*Germany.*$" /etc/pacman.d/mirrorlist.bak | sed '/--/d' > /etc/pacman.d/mirrorlist
 
 	# set hostname
 	echo "Set hostname"
