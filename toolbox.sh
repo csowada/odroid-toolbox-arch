@@ -6,6 +6,8 @@ GROUP=openhab
 
 create_user() {
 
+	echo "Create openhab user"
+
 	useradd -m -G $GROUP -s /usr/bin/nologin $USER
 
 	# Access group for >> Serial and USB devices such as modems, handhelds, RS-232/serial ports.
@@ -24,6 +26,8 @@ create_user() {
 
 create_user2() {
 
+	echo "Create user2"
+
 	useradd -m -G $GROUP -s /usr/bin/nologin $USER
 
 	# Access group for >> sudo root
@@ -32,6 +36,8 @@ create_user2() {
 }
 
 install_acpi() {
+
+	echo "Install ACPI service"
 
 	# install ACPI
 	pacman -S acpid --noconfirm
@@ -49,6 +55,9 @@ install_acpi() {
 }
 
 install_yaourt() {
+
+	echo "Install yaourt"
+
 	pacman -S base-devel --noconfirm
 
 	curl -O https://aur.archlinux.org/cgit/aur.git/snapshot/package-query.tar.gz
@@ -65,6 +74,8 @@ install_yaourt() {
 
 initial_system() {
 
+	echo "Init system"
+
 	grep -E -A 1 ".*Germany.*$" /etc/pacman.d/mirrorlist.bak | sed '/--/d' > /etc/pacman.d/mirrorlist
 
 	# Update locals
@@ -80,6 +91,8 @@ initial_system() {
 
 install_docker() {
 
+	echo "Install docker"
+
 	# Docker part
 	pacman -S docker --noconfirm
 	systemctl enable docker
@@ -88,14 +101,20 @@ install_docker() {
 }
 
 disable_root() {
+
+	echo "Disable root account"
+
 	passwd -l root
 }
 
 enable_root() {
+	echo "Enable root account"
 	sudo passwd -u root
 }
 
 prepare_udev() {
+
+	echo "Set UDEV"
 
 	# Add reliable serial ftdi device links
 	cat << __EOF__ >> /etc/udev/rules.d/52-openhab-ftdi.rules
@@ -111,6 +130,8 @@ __EOF__
 
 prepare_lock() {
 
+		echo "Repare lock"
+
 	# Allow access to usb like HID devices
 	cat << __EOF__ >> /etc/tmpfiles.d/legacy.conf
 # /etc/tmpfiles.d/legacy.conf
@@ -123,6 +144,8 @@ __EOF__
 
 
 expand_root_partition() {
+
+	echo "Resize root partition"
 
 	# Install parted to update root partition
 	pacman -S parted --noconfirm
