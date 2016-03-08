@@ -87,7 +87,7 @@ initial_system() {
 
 	# set hostname
 	echo "Set hostname"
-	echo openhab2 > root/etc/hostname
+	echo openhab2 > /etc/hostname
 
 	# set locals
 	echo "Set locals"
